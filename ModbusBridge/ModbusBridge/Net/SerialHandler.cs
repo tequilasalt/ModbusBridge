@@ -63,7 +63,7 @@ namespace ModbusBridge.Net{
             _serialPort.Parity = parsedParity;
             _serialPort.StopBits = parsedStopBits;
             _serialPort.WriteTimeout = 10000;
-            _serialPort.ReadTimeout = 500;
+            _serialPort.ReadTimeout = 2000;
 
             _serialPort.DataReceived += SerialportOnDataReceived;
 
@@ -79,7 +79,7 @@ namespace ModbusBridge.Net{
         public bool Busy => _busy;
 
         public void SendRequest(byte[] bytes, SerialCallback callback) {
-
+            /*
             if (Busy){
                 return;
             }
@@ -88,8 +88,12 @@ namespace ModbusBridge.Net{
             _timer = new Timer(500);
             _timer.Elapsed += TimerOnElapsed;
             _timer.Start();
-
+            */
             //Console.WriteLine("Send to serial - " + BitConverter.ToString(bytes).Replace("-", " "));
+
+            _bytesToRead = 0;
+            _serialPort.DiscardInBuffer();
+
             _parent.Log("Send to serial - " + BitConverter.ToString(bytes).Replace("-", " ")+ " Time:" + System.DateTime.Now.Minute + "." + System.DateTime.Now.Second + "." + System.DateTime.Now.Millisecond);
 
             _callback = callback;
@@ -97,7 +101,7 @@ namespace ModbusBridge.Net{
 
             byte function = bytes[1];
             int quantity = 0;
-
+            
             byte[] quantityBytes = null;
 
             switch (function){
@@ -222,18 +226,18 @@ namespace ModbusBridge.Net{
                 _parent.Log("\n");
                 //Console.WriteLine("--------------------------------------------------");
             }
-
+            /*
             if (_timer != null) {
 
                 _timer.Stop();
                 _timer = null;
 
             }
-
+            */
             _bytesToRead = 0;
             _serialPort.DataReceived += SerialportOnDataReceived;
 
-            _busy = false;
+            //_busy = false;
 
         }
 
