@@ -14,12 +14,15 @@ namespace ModbusBridge.Net{
         private int _bytesToRead;
         private byte _requestOwner = 0;
         private Timer _timer;
+        private Connection _parent;
         private SerialPort _serialPort;
         private SerialCallback _callback;
 
         public delegate void SerialCallback(Byte[] bytes);
 
-        public SerialHandler(string com, int baudRate, string stopBits, string parity){
+        public SerialHandler(string com, int baudRate, string stopBits, string parity, Connection parent) {
+
+            _parent = parent;
 
             Parity parsedParity = Parity.None;
 
@@ -82,11 +85,12 @@ namespace ModbusBridge.Net{
             }
 
             _busy = true;
-            _timer = new Timer(300);
+            _timer = new Timer(500);
             _timer.Elapsed += TimerOnElapsed;
             _timer.Start();
 
-            Console.WriteLine("Send to serial - " + BitConverter.ToString(bytes).Replace("-", " "));
+            //Console.WriteLine("Send to serial - " + BitConverter.ToString(bytes).Replace("-", " "));
+            _parent.Log("Send to serial - " + BitConverter.ToString(bytes).Replace("-", " ")+ " Time:" + System.DateTime.Now.Minute + "." + System.DateTime.Now.Second + "." + System.DateTime.Now.Millisecond);
 
             _callback = callback;
             _requestOwner = bytes[0];
@@ -137,7 +141,8 @@ namespace ModbusBridge.Net{
         }
 
         private void TimerOnElapsed(object sender, ElapsedEventArgs e) {
-            Console.WriteLine("-----------Timer End");
+            //Console.WriteLine("-----------Timer End");
+            _parent.Log("--- Request Timeout");
             EndRequest();
         }
 
@@ -204,15 +209,18 @@ namespace ModbusBridge.Net{
             Array.Copy(readBuffer, 0, receiveData, 0, (actualPositionToRead < readBuffer.Length) ? actualPositionToRead : readBuffer.Length);
 
             EndRequest(receiveData);
+
         }
 
         private void EndRequest(byte[] receiveData = null) {
             
-            if (receiveData != null && receiveData.Length == _bytesToRead && receiveData[0] == _requestOwner) {
+            if (receiveData != null && receiveData.Length != 0 && receiveData.Length == _bytesToRead && receiveData[0] == _requestOwner) {
                 _callback(receiveData);
             } else {
-                Console.WriteLine("Serial response is missing or not verified" + " Time:" + System.DateTime.Now.Minute + "." + System.DateTime.Now.Second + "." + System.DateTime.Now.Millisecond);
-                Console.WriteLine("--------------------------------------------------");
+                //Console.WriteLine("Serial response is missing or not verified" + " Time:" + System.DateTime.Now.Minute + "." + System.DateTime.Now.Second + "." + System.DateTime.Now.Millisecond);
+                _parent.Log("Serial response is missing or not verified" + " Time:" + System.DateTime.Now.Minute + "." + System.DateTime.Now.Second + "." + System.DateTime.Now.Millisecond);
+                _parent.Log("\n");
+                //Console.WriteLine("--------------------------------------------------");
             }
 
             if (_timer != null) {

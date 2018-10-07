@@ -1,4 +1,6 @@
-﻿namespace ModbusBridge{
+﻿using System.Windows.Forms;
+
+namespace ModbusBridge{
 
     partial class MainForm{
         /// <summary>
@@ -25,12 +27,20 @@
         /// Required method for Designer support - do not modify
         /// the contents of this method with the code editor.
         /// </summary>
-        private void InitializeComponent()
-        {
-            this.components = new System.ComponentModel.Container();
+        private void InitializeComponent(){
+            this.SuspendLayout();
+            // 
+            // MainForm
+            // 
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
-            this.Text = "Form1";
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
+            this.ClientSize = new System.Drawing.Size(1200, 420);
+            this.Name = "MainForm";
+            this.Text = "ModbusBridge";
+            this.ResumeLayout(false);
+            this.FormBorderStyle = FormBorderStyle.FixedSingle;
         }
 
         #endregion

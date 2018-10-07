@@ -11,9 +11,13 @@ using SimpleJSON;
 
 namespace ModbusBridge{
 
-    public partial class MainForm : Form{
+    public partial class MainForm : Form {
 
-        public MainForm(){
+        private static MainForm _instance;
+
+        public MainForm() {
+
+            _instance = this;
 
             InitializeComponent();
 
@@ -27,10 +31,13 @@ namespace ModbusBridge{
 
                 JSONNode n = node["Devices"][i];
 
-                var listener = new Connection(n["port"].AsInt, n["com"].Value, n["baudrate"].AsInt, n["stopBits"].Value, n["parity"].Value);
-                
+                var listener = new Connection(n["port"].AsInt, n["com"].Value, n["baudrate"].AsInt, n["stopBits"].Value, n["parity"].Value, i);
+
             }
 
         }
+
+        public static MainForm Instance => _instance;
+
     }
 }
