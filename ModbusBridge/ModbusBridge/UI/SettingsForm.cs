@@ -13,9 +13,12 @@ namespace ModbusBridge.UI{
         public SettingsForm(ConnectionModel model, ConnectionUI parent) {
 
             this.Text = "Ayarlar";
-            this.Size = new Size(220,220);
+            this.Size = new Size(215,210);
             this.MinimizeBox = false;
             this.MaximizeBox = false;
+            this.AutoScaleMode = AutoScaleMode.Font;
+            this.FormBorderStyle = FormBorderStyle.FixedDialog;
+            this.Icon = Properties.Resources.true_logo_yJ1_icon;
 
             AddLabel("TCP Port", 10);
             AddLabel("COM Port", 35);
@@ -27,7 +30,8 @@ namespace ModbusBridge.UI{
 
             tcpPort.Maximum = 65535;
             tcpPort.Minimum = 1;
-
+            tcpPort.Increment = 1m;
+            
             tcpPort.Text = model.TcpPort.ToString();
             tcpPort.Size = new Size(100,25);
             tcpPort.Location = new Point(80,13);
@@ -93,12 +97,31 @@ namespace ModbusBridge.UI{
 
             this.Controls.Add(saveButton);
 
+            saveButton.MouseClick += (sender, args) => {
+
+                model.TcpPort = Convert.ToInt32(tcpPort.Value);
+                model.SerialPort = serialPort.Text;
+                model.BaudRate = (int) baudrate.SelectedItem;
+                model.Parity = (Parity)parity.SelectedItem;
+                model.StopBits = (StopBits) stopBits.SelectedItem;
+
+                parent.Update(model);
+
+            };
+
             Button deleteButton = new Button();
             deleteButton.Text = "Sil";
             deleteButton.Size = new Size(80, 25);
             deleteButton.Location = new Point(107, 145);
 
             this.Controls.Add(deleteButton);
+
+            deleteButton.MouseClick += (sender, args) => {
+
+                parent.Delete();
+
+            };
+
         }
 
         private void AddLabel(string name, int y) {

@@ -28,17 +28,15 @@ namespace ModbusBridge{
         /// the contents of this method with the code editor.
         /// </summary>
         private void InitializeComponent(){
-
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
-
             this._connectionPanel = new System.Windows.Forms.Panel();
             this._exitButton = new System.Windows.Forms.Button();
             this._restartButton = new System.Windows.Forms.Button();
             this._link = new System.Windows.Forms.LinkLabel();
-
+            this._newButton = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
-            // panel1
+            // _connectionPanel
             // 
             this._connectionPanel.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this._connectionPanel.Location = new System.Drawing.Point(7, 82);
@@ -50,8 +48,9 @@ namespace ModbusBridge{
             this._connectionPanel.AutoScroll = false;
             this._connectionPanel.VerticalScroll.Visible = false;
             this._connectionPanel.AutoScroll = true;
+
             // 
-            // button1
+            // _exitButton
             // 
             this._exitButton.Location = new System.Drawing.Point(115, 571);
             this._exitButton.Name = "_exitButton";
@@ -60,7 +59,7 @@ namespace ModbusBridge{
             this._exitButton.Text = "Çıkış";
             this._exitButton.UseVisualStyleBackColor = true;
             // 
-            // button2
+            // _restartButton
             // 
             this._restartButton.Location = new System.Drawing.Point(7, 571);
             this._restartButton.Name = "_restartButton";
@@ -69,7 +68,7 @@ namespace ModbusBridge{
             this._restartButton.Text = "Yeniden başlat";
             this._restartButton.UseVisualStyleBackColor = true;
             // 
-            // linkLabel1
+            // _link
             // 
             this._link.AutoSize = true;
             this._link.BackColor = System.Drawing.Color.Transparent;
@@ -80,13 +79,33 @@ namespace ModbusBridge{
             this._link.TabStop = true;
             this._link.Text = "www.truekontrol.com";
             // 
+            // button1
+            // 
+            this._newButton.Location = new System.Drawing.Point(520, 56);
+            this._newButton.Name = "_newButton";
+            this._newButton.Size = new System.Drawing.Size(75, 23);
+            this._newButton.TabIndex = 11;
+            this._newButton.Text = "Yeni";
+            this._newButton.UseVisualStyleBackColor = true;
+            //
+            //Notify icon
+            //
+            this._notifyIcon = new NotifyIcon();
+            this._notifyIcon.BalloonTipIcon = System.Windows.Forms.ToolTipIcon.Info; //Shows the info icon so the user doesn't think there is an error.
+            this._notifyIcon.BalloonTipText = "True Kontrol";
+            this._notifyIcon.BalloonTipTitle = "Modbus Bridge";
+            this._notifyIcon.Icon = Properties.Resources.true_logo_yJ1_icon;
+            this._notifyIcon.Text = "Modbus Bridge";
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Control;
             this.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("$this.BackgroundImage")));
+            this.Icon = Properties.Resources.true_logo_yJ1_icon;
             this.ClientSize = new System.Drawing.Size(600, 600);
+            this.Controls.Add(this._newButton);
             this.Controls.Add(this._link);
             this.Controls.Add(this._restartButton);
             this.Controls.Add(this._exitButton);
@@ -99,12 +118,15 @@ namespace ModbusBridge{
             this.ResumeLayout(false);
             this.PerformLayout();
 
+
         }
 
         private Panel _connectionPanel;
         private Button _exitButton;
         private Button _restartButton;
         private LinkLabel _link;
+        private Button _newButton;
+        private NotifyIcon _notifyIcon;
 
         public Panel ConnectionPanel {
             get { return _connectionPanel; }

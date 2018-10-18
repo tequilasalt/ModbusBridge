@@ -10,7 +10,7 @@ using System.Windows.Forms;
 namespace ModbusBridge.Net {
 
     public class Connection {
-
+        /*
         private int _port;
 
         private object _lockProcessReceivedData = new object();
@@ -27,7 +27,7 @@ namespace ModbusBridge.Net {
         public Connection(int port, string com, int baudRate, string stopBits, string parity, int index) {
 
             _port = port;
-            _serialHandler = new SerialHandler(com, baudRate, stopBits, parity, this);
+            _serialHandler = new SerialHandler(com, baudRate, stopBits, parity);
 
             Listen();
 
@@ -117,7 +117,7 @@ namespace ModbusBridge.Net {
                     Console.WriteLine(e);
                 }
             }
-        }
+        }*/
         /*
         private void CreateLogPanel(int port, string com, int index){
 

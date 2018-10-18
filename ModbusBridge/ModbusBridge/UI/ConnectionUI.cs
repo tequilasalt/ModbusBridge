@@ -1,10 +1,17 @@
 ﻿using System;
 using System.Drawing;
+using System.Threading;
 using System.Windows.Forms;
+using ModbusBridge.Net;
 
 namespace ModbusBridge.UI{
 
     public class ConnectionUI:Panel {
+
+        public enum PortType {
+            TCP,
+            COM
+        }
 
         private Label _tcpLabel;
         private Label _serialLabel;
@@ -17,8 +24,10 @@ namespace ModbusBridge.UI{
         
         private ConnectionModel _model;
 
-        private Form _debugForm;
-        private Form _settingsForm;
+        private DebugForm _debugForm;
+        private SettingsForm _settingsForm;
+
+        private PortBridge _bridge;
 
         public ConnectionUI(ConnectionModel model) {
 
@@ -101,7 +110,6 @@ namespace ModbusBridge.UI{
             serialStatusHeader.Text = "Durum:";
 
             this.Controls.Add(serialStatusHeader);
-
             
             _serialIcon = new PictureBox();
             _serialIcon.Size = new Size(16, 16);
@@ -125,6 +133,24 @@ namespace ModbusBridge.UI{
 
             this.Controls.Add(_debugButton);
 
+            _debugButton.MouseClick += (sender, args) => {
+
+                if (!MainForm.Instance.Ready){
+                    return;
+                }
+
+                if (_debugForm != null) {
+                    return;
+                }
+
+                _debugForm = new DebugForm(_model);
+                _debugForm.Show();
+
+                _debugForm.Closed += (o, eventArgs) => {
+                    _debugForm = null;
+                };
+            };
+
             _editButton = new Button();
             _editButton.Text = "";
             _editButton.Size = new Size(24, 24);
@@ -133,12 +159,20 @@ namespace ModbusBridge.UI{
 
             _editButton.MouseClick += (sender, args) => {
 
+                if (!MainForm.Instance.Ready) {
+                    return;
+                }
+
                 if (_settingsForm != null) {
                     return;
                 }
 
                 _settingsForm = new SettingsForm(_model, this);
                 _settingsForm.Show();
+
+                _settingsForm.Closed += (o, eventArgs) => {
+                    _settingsForm = null;
+                };
             };
 
             this.Controls.Add(_editButton);
@@ -147,18 +181,86 @@ namespace ModbusBridge.UI{
             
         }
 
-        public void Rebuild(ConnectionModel model) {
+        public ConnectionModel Model => _model;
 
+        public void Update(ConnectionModel model) {
+            
+            Kill();
+
+            _settingsForm.Close();
+            _settingsForm = null;
+
+            Rebuild(model);
+
+            MainForm.Instance.SaveAllDumps();
+        }
+
+        public void Rebuild(ConnectionModel model) {
+            
             _model = model;
 
             _tcpLabel.Text = _model.TcpPort.ToString();
-
-            _tcpIcon.Image = Properties.Resources.connection_off;
-            
             _serialLabel.Text = _model.SerialPort;
-            
-            _serialIcon.Image = Properties.Resources.connection_on;
 
+            Kill();
+            
+            _bridge = new PortBridge(_model, this);
+            
+            _bridge.StartTcpHandler();
+            _tcpIcon.Image = Properties.Resources.connection_on;
+        
+            _serialIcon.Image = Properties.Resources.connection_on;
+            _bridge.StartSerialHandler();
+            
+        }
+
+        public void PortError(PortType type) {
+
+            if (type == PortType.TCP) {
+                _tcpIcon.Image = Properties.Resources.connection_off;
+            } else {
+                _serialIcon.Image = Properties.Resources.connection_off;
+            }
+
+        }
+
+        public void Delete() {
+
+            Kill();
+
+            _settingsForm.Close();
+            _settingsForm = null;
+
+            if (_debugForm != null) {
+                _debugForm.Close();
+                _debugForm = null;
+            }
+
+            MainForm.Instance.RemoveConnection(this);
+        }
+
+        public void Kill() {
+
+            if (_bridge != null) {
+                _bridge.Kill();
+                _bridge = null;
+            }
+        }
+
+        public void Log(string input) {
+
+            if (MainForm.Instance.InvokeRequired){
+                MainForm.Instance.Invoke(new Action<string>(Log), new object[] { input });
+                return;
+            }
+
+            if (_debugForm == null) {
+                return;
+            }
+
+            _debugForm.LogBox.AppendText("Saat:" + DateTime.Now.Hour + ":" + DateTime.Now.Minute + ":" + DateTime.Now.Second + "." + DateTime.Now.Millisecond+"\n");
+            _debugForm.LogBox.AppendText(input+"\n");
+            
         }
 
     }

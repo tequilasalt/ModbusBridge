@@ -40,8 +40,10 @@ namespace ModbusBridge.Net{
         }
 
         public void Connect(){
+
             _server.Start();
             _server.BeginAcceptTcpClient(AcceptTcpClientCallback, null);
+            
         }
 
         public void Disconnect(){

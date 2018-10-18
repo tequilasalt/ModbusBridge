@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Globalization;
 using System.IO.Ports;
+using ModbusBridge.UI;
 
 namespace ModbusBridge.Net{
 
@@ -8,69 +9,26 @@ namespace ModbusBridge.Net{
 
         private int _bytesToRead;
         private byte _requestOwner = 0;
-        private Connection _parent;
+
         private SerialPort _serialPort;
         private SerialCallback _callback;
 
         public delegate void SerialCallback(Byte[] bytes);
 
-        public SerialHandler(string com, int baudRate, string stopBits, string parity, Connection parent) {
-
-            _parent = parent;
-
-            Parity parsedParity = Parity.None;
-
-            switch (parity){
-                case "odd":
-                    parsedParity = Parity.Odd;
-                    break;
-                case "even":
-                    parsedParity = Parity.Even;
-                    break;
-                case "mark":
-                    parsedParity = Parity.Mark;
-                    break;
-                case "space":
-                    parsedParity = Parity.Space;
-                    break;
-            }
-
-            StopBits parsedStopBits = StopBits.One;
-
-            switch (stopBits){
-                
-                case "1.5":
-                    parsedStopBits = StopBits.OnePointFive;
-                    break;
-                case "none":
-                    parsedStopBits = StopBits.None;
-                    break;
-                case "2":
-                    parsedStopBits = StopBits.Two;
-                    break;
-            }
-
+        public SerialHandler(string com, int baudRate, StopBits stopBits, Parity parity) {
 
             _serialPort = new SerialPort();
             _serialPort.PortName = com;
             _serialPort.BaudRate = baudRate;
-            _serialPort.Parity = parsedParity;
-            _serialPort.StopBits = parsedStopBits;
+            _serialPort.Parity = parity;
+            _serialPort.StopBits = stopBits;
             _serialPort.WriteTimeout = 10000;
             _serialPort.ReadTimeout = 2000;
 
             _serialPort.DataReceived += SerialportOnDataReceived;
 
-        }
+            _serialPort.Open();
 
-        public void Open() {
-            try{
-                _serialPort.Open();
-            }
-            catch (Exception e){
-                Console.WriteLine(e);
-                throw;
-            }
         }
 
         public void Close() {
@@ -79,13 +37,8 @@ namespace ModbusBridge.Net{
 
         public void SendRequest(byte[] bytes, SerialCallback callback) {
             
-            //Console.WriteLine("Send to serial - " + BitConverter.ToString(bytes).Replace("-", " "));
-
             _bytesToRead = 0;
             _serialPort.DiscardInBuffer();
-
-            //_parent.Log("Send to serial - " + BitConverter.ToString(bytes).Replace("-", " ")+ " Time:" + System.DateTime.Now.Minute + "." + System.DateTime.Now.Second + "." + System.DateTime.Now.Millisecond);
-            Console.WriteLine("Send to serial - " + BitConverter.ToString(bytes).Replace("-", " ")+ " Time:" + System.DateTime.Now.Minute + "." + System.DateTime.Now.Second + "." + System.DateTime.Now.Millisecond);
 
             _callback = callback;
             _requestOwner = bytes[0];
@@ -205,13 +158,8 @@ namespace ModbusBridge.Net{
             
             if (receiveData != null && receiveData.Length != 0 && receiveData.Length == _bytesToRead && receiveData[0] == _requestOwner) {
                 _callback(receiveData);
-            } else {
-                Console.WriteLine("Serial response is missing or not verified" + " Time:" + System.DateTime.Now.Minute + "." + System.DateTime.Now.Second + "." + System.DateTime.Now.Millisecond);
-                //_parent.Log("Serial response is missing or not verified" + " Time:" + System.DateTime.Now.Minute + "." + System.DateTime.Now.Second + "." + System.DateTime.Now.Millisecond);
-                //_parent.Log("\n");
-                Console.WriteLine("--------------------------------------------------");
-            }
-            
+            } 
+
             _bytesToRead = 0;
             _serialPort.DataReceived += SerialportOnDataReceived;
 

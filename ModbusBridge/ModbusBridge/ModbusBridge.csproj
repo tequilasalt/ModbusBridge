@@ -11,6 +11,21 @@
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -32,7 +47,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>zafir_logo_n3A_icon.ico</ApplicationIcon>
+    <ApplicationIcon>true_logo_yJ1_icon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -54,6 +69,7 @@
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Net\Connection.cs" />
+    <Compile Include="Net\PortBridge.cs" />
     <Compile Include="Net\SerialHandler.cs" />
     <Compile Include="Net\TCPHandler.cs" />
     <Compile Include="Program.cs" />
@@ -62,6 +78,9 @@
     <Compile Include="UI\ConnectionModel.cs" />
     <Compile Include="UI\ConnectionUI.cs">
       <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="UI\DebugForm.cs">
+      <SubType>Form</SubType>
     </Compile>
     <Compile Include="UI\SettingsForm.cs">
       <SubType>Form</SubType>
@@ -97,9 +116,18 @@
     <Content Include="Res\direction.png" />
     <Content Include="Res\seperator.png" />
     <Content Include="Res\settings.png" />
+    <Content Include="Res\true_logo_yJ1_icon.ico" />
     <Content Include="Res\zafir_logo_n3A_icon.ico" />
     <Content Include="SimpleJSON\ICSharpCode.SharpZipLib.dll" />
+    <Content Include="true_logo_yJ1_icon.ico" />
     <Content Include="zafir_logo_n3A_icon.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
