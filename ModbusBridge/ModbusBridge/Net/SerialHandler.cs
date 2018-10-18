@@ -1,19 +1,13 @@
 ﻿using System;
 using System.Globalization;
 using System.IO.Ports;
-using System.Threading;
-using System.Timers;
-using Timer = System.Timers.Timer;
 
 namespace ModbusBridge.Net{
 
     public class SerialHandler {
 
-        private bool _busy;
-
         private int _bytesToRead;
         private byte _requestOwner = 0;
-        private Timer _timer;
         private Connection _parent;
         private SerialPort _serialPort;
         private SerialCallback _callback;
@@ -67,34 +61,31 @@ namespace ModbusBridge.Net{
 
             _serialPort.DataReceived += SerialportOnDataReceived;
 
-            try {
+        }
+
+        public void Open() {
+            try{
                 _serialPort.Open();
-            } catch (Exception e) {
+            }
+            catch (Exception e){
                 Console.WriteLine(e);
                 throw;
             }
-            
         }
 
-        public bool Busy => _busy;
+        public void Close() {
+            _serialPort.Close();
+        }
 
         public void SendRequest(byte[] bytes, SerialCallback callback) {
-            /*
-            if (Busy){
-                return;
-            }
-
-            _busy = true;
-            _timer = new Timer(500);
-            _timer.Elapsed += TimerOnElapsed;
-            _timer.Start();
-            */
+            
             //Console.WriteLine("Send to serial - " + BitConverter.ToString(bytes).Replace("-", " "));
 
             _bytesToRead = 0;
             _serialPort.DiscardInBuffer();
 
-            _parent.Log("Send to serial - " + BitConverter.ToString(bytes).Replace("-", " ")+ " Time:" + System.DateTime.Now.Minute + "." + System.DateTime.Now.Second + "." + System.DateTime.Now.Millisecond);
+            //_parent.Log("Send to serial - " + BitConverter.ToString(bytes).Replace("-", " ")+ " Time:" + System.DateTime.Now.Minute + "." + System.DateTime.Now.Second + "." + System.DateTime.Now.Millisecond);
+            Console.WriteLine("Send to serial - " + BitConverter.ToString(bytes).Replace("-", " ")+ " Time:" + System.DateTime.Now.Minute + "." + System.DateTime.Now.Second + "." + System.DateTime.Now.Millisecond);
 
             _callback = callback;
             _requestOwner = bytes[0];
@@ -142,12 +133,6 @@ namespace ModbusBridge.Net{
 
             _serialPort.Write(bytes, 0, bytes.Length);
 
-        }
-
-        private void TimerOnElapsed(object sender, ElapsedEventArgs e) {
-            //Console.WriteLine("-----------Timer End");
-            _parent.Log("--- Request Timeout");
-            EndRequest();
         }
 
         private void SerialportOnDataReceived(object sender, SerialDataReceivedEventArgs e) {
@@ -221,23 +206,14 @@ namespace ModbusBridge.Net{
             if (receiveData != null && receiveData.Length != 0 && receiveData.Length == _bytesToRead && receiveData[0] == _requestOwner) {
                 _callback(receiveData);
             } else {
-                //Console.WriteLine("Serial response is missing or not verified" + " Time:" + System.DateTime.Now.Minute + "." + System.DateTime.Now.Second + "." + System.DateTime.Now.Millisecond);
-                _parent.Log("Serial response is missing or not verified" + " Time:" + System.DateTime.Now.Minute + "." + System.DateTime.Now.Second + "." + System.DateTime.Now.Millisecond);
-                _parent.Log("\n");
-                //Console.WriteLine("--------------------------------------------------");
+                Console.WriteLine("Serial response is missing or not verified" + " Time:" + System.DateTime.Now.Minute + "." + System.DateTime.Now.Second + "." + System.DateTime.Now.Millisecond);
+                //_parent.Log("Serial response is missing or not verified" + " Time:" + System.DateTime.Now.Minute + "." + System.DateTime.Now.Second + "." + System.DateTime.Now.Millisecond);
+                //_parent.Log("\n");
+                Console.WriteLine("--------------------------------------------------");
             }
-            /*
-            if (_timer != null) {
-
-                _timer.Stop();
-                _timer = null;
-
-            }
-            */
+            
             _bytesToRead = 0;
             _serialPort.DataReceived += SerialportOnDataReceived;
-
-            //_busy = false;
 
         }
 

@@ -20,9 +20,9 @@ namespace ModbusBridge.Net {
         private SerialHandler _serialHandler;
 
         //Logger
-        private Panel _panel;
-        private Label _label;
-        private TextBox _logBox;
+        //private Panel _panel;
+        //private Label _label;
+        //private TextBox _logBox;
 
         public Connection(int port, string com, int baudRate, string stopBits, string parity, int index) {
 
@@ -31,7 +31,7 @@ namespace ModbusBridge.Net {
 
             Listen();
 
-            CreateLogPanel(port, com, index);
+            //CreateLogPanel(port, com, index);
         }
 
         private void Listen() {
@@ -51,17 +51,11 @@ namespace ModbusBridge.Net {
 
             lock (_lockProcessReceivedData) {
 
-                if (_serialHandler.Busy) {
-                    //Console.WriteLine("--------- Tcp request ignored");
-                    Log("--- Request Ignored");
-                    return;
-                }
-
                 Byte[] bytes = new byte[((TCPHandler.NetworkConnectionParameter)networkConnectionParameter).Bytes.Length];
                 Array.Copy(((TCPHandler.NetworkConnectionParameter)networkConnectionParameter).Bytes, 0, bytes, 0, ((TCPHandler.NetworkConnectionParameter)networkConnectionParameter).Bytes.Length);
 
-                //Console.WriteLine("From Tcp client - "+bytes[6]+" : " + BitConverter.ToString(bytes).Replace("-", " ")+ " Time:"+System.DateTime.Now.Minute+"."+ System.DateTime.Now.Second+"."+ System.DateTime.Now.Millisecond);
-                Log("From Tcp client - "+bytes[6]+" : " + BitConverter.ToString(bytes).Replace("-", " ")+ " Time:"+System.DateTime.Now.Minute+"."+ System.DateTime.Now.Second+"."+ System.DateTime.Now.Millisecond);
+                Console.WriteLine("From Tcp client - "+bytes[6]+" : " + BitConverter.ToString(bytes).Replace("-", " ")+ " Time:"+System.DateTime.Now.Minute+"."+ System.DateTime.Now.Second+"."+ System.DateTime.Now.Millisecond);
+                //Log("From Tcp client - "+bytes[6]+" : " + BitConverter.ToString(bytes).Replace("-", " ")+ " Time:"+System.DateTime.Now.Minute+"."+ System.DateTime.Now.Second+"."+ System.DateTime.Now.Millisecond);
 
                 Byte[] tcpHeader = new byte[4];
 
@@ -105,10 +99,10 @@ namespace ModbusBridge.Net {
 
                         NetworkStream stream = ((TCPHandler.NetworkConnectionParameter)networkConnectionParameter).Stream;
 
-                        //Console.WriteLine("Tcp response - " + BitConverter.ToString(response).Replace("-", " ") + " Time:" + System.DateTime.Now.Minute + "." + System.DateTime.Now.Second + "." + System.DateTime.Now.Millisecond);
-                        Log("Tcp response - " + BitConverter.ToString(response).Replace("-", " ") + " Time:" + System.DateTime.Now.Minute + "." + System.DateTime.Now.Second + "." + System.DateTime.Now.Millisecond);
-                        Log("\n");
-                        //Console.WriteLine("--------------------------------------------------");
+                        Console.WriteLine("Tcp response - " + BitConverter.ToString(response).Replace("-", " ") + " Time:" + System.DateTime.Now.Minute + "." + System.DateTime.Now.Second + "." + System.DateTime.Now.Millisecond);
+                        //Log("Tcp response - " + BitConverter.ToString(response).Replace("-", " ") + " Time:" + System.DateTime.Now.Minute + "." + System.DateTime.Now.Second + "." + System.DateTime.Now.Millisecond);
+                        //Log("\n");
+                        Console.WriteLine("--------------------------------------------------");
 
                         if (stream.CanWrite){
                             stream.Write(response, 0, response.Length);
@@ -124,7 +118,7 @@ namespace ModbusBridge.Net {
                 }
             }
         }
-
+        /*
         private void CreateLogPanel(int port, string com, int index){
 
             _panel = new Panel();
@@ -171,6 +165,6 @@ namespace ModbusBridge.Net {
             _logBox.AppendText("\n");
 
         }
-
+        */
     }
 }

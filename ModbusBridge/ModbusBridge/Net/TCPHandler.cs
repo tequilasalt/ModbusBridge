@@ -8,7 +8,7 @@ namespace ModbusBridge.Net{
     public class TCPHandler{
 
         public struct NetworkConnectionParameter{
-            public NetworkStream Stream;        //For TCP-Connection only
+            public NetworkStream Stream;        
             public Byte[] Bytes;
         }
 
@@ -16,13 +16,9 @@ namespace ModbusBridge.Net{
 
         public event DataChanged dataChanged;
 
-        public delegate void NumberOfClientsChanged();
-
-        public event NumberOfClientsChanged numberOfClientsChanged;
-
         private TcpListener _server = null;
 
-        private List<Client> tcpClientLastRequestList = new List<Client>();
+        private List<Client> _tcpClientLastRequestList = new List<Client>();
 
         public int NumberOfConnectedClients { get; set; }
 
@@ -32,8 +28,6 @@ namespace ModbusBridge.Net{
 
             IPAddress localAddr = IPAddress.Any;
             _server = new TcpListener(localAddr, port);
-            _server.Start();
-            _server.BeginAcceptTcpClient(AcceptTcpClientCallback, null);
 
         }
 
@@ -42,8 +36,25 @@ namespace ModbusBridge.Net{
             this.ipAddress = ipAddress;
             IPAddress localAddr = IPAddress.Any;
             _server = new TcpListener(localAddr, port);
+
+        }
+
+        public void Connect(){
             _server.Start();
             _server.BeginAcceptTcpClient(AcceptTcpClientCallback, null);
+        }
+
+        public void Disconnect(){
+
+            try{
+                foreach (Client clientLoop in _tcpClientLastRequestList){
+                    clientLoop.NetworkStream.Close(00);
+                }
+            }
+            catch (Exception){
+            }
+
+            _server.Stop();
 
         }
 
@@ -93,22 +104,22 @@ namespace ModbusBridge.Net{
                 int i = 0;
 
                 bool objetExists = false;
-                foreach (Client clientLoop in tcpClientLastRequestList){
+                foreach (Client clientLoop in _tcpClientLastRequestList){
                     if (client.Equals(clientLoop))
                         objetExists = true;
                 }
 
                 try{
-                    tcpClientLastRequestList.RemoveAll(delegate (Client c) { return ((DateTime.Now.Ticks - c.Ticks) > 40000000); });
+                    _tcpClientLastRequestList.RemoveAll(delegate (Client c) { return ((DateTime.Now.Ticks - c.Ticks) > 40000000); });
                 }
                 catch (Exception){
                 }
 
                 if (!objetExists) {
-                    tcpClientLastRequestList.Add(client);
+                    _tcpClientLastRequestList.Add(client);
                 }
 
-                return tcpClientLastRequestList.Count;
+                return _tcpClientLastRequestList.Count;
             }
         }
 
@@ -119,10 +130,6 @@ namespace ModbusBridge.Net{
             client.Ticks = DateTime.Now.Ticks;
 
             NumberOfConnectedClients = GetAndCleanNumberOfConnectedClients(client);
-
-            if (numberOfClientsChanged != null){
-                numberOfClientsChanged();
-            }
 
             if (client != null){
 
@@ -158,19 +165,7 @@ namespace ModbusBridge.Net{
             }
         }
 
-        public void Disconnect(){
-
-            try{
-                foreach (Client clientLoop in tcpClientLastRequestList){
-                    clientLoop.NetworkStream.Close(00);
-                }
-            }
-            catch (Exception){
-            }
-
-            _server.Stop();
-
-        }
+        
 
         private class Client{
 
