@@ -31,7 +31,9 @@ namespace ModbusBridge{
             Init();
 
             _notifyIcon.MouseDoubleClick += notifyIcon_MouseDoubleClick;
+
             this.Resize += ImportStatusForm_Resize;
+            this.FormClosing += MainForm_FormClosing;
         }
 
         private void Init() {
@@ -233,6 +235,14 @@ namespace ModbusBridge{
             this.WindowState = FormWindowState.Normal;
             this.ShowInTaskbar = true;
             _notifyIcon.Visible = false;
+        }
+
+        private void MainForm_FormClosing(object sender, FormClosingEventArgs e){
+
+            if (e.CloseReason == CloseReason.UserClosing){
+                e.Cancel = true;
+                this.WindowState = FormWindowState.Minimized;
+            }
         }
 
         public bool Ready => _ready;
